@@ -6,10 +6,8 @@ import lombok.Data;
 public class ProductCartModel {
     private int productCode;
     private int customerId;
-    private String productName;
-    private String skuCode;
+    private String email;
+    private String password;
     private String size;
-    private double price;
-    private String currency;
-    private double totalAmount;
+    private int quantity;
 }
