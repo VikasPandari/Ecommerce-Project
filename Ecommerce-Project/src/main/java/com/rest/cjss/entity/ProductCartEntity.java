@@ -1,5 +1,6 @@
 package com.rest.cjss.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -14,13 +15,18 @@ import javax.persistence.*;
 public class ProductCartEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int sno;
+    private int productSno;
     private int productCode;
-    private int customerId;
     private String productName;
     private String skuCode;
     private String size;
     private double price;
     private String currency;
+    private int quantity;
     private double totalAmount;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name="customerId")
+    private CustomerEntity customerEntity;
+
 }

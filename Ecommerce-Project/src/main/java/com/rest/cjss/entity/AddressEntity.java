@@ -1,5 +1,7 @@
 package com.rest.cjss.entity;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -18,4 +20,6 @@ public class AddressEntity {
     private int locationId;
     private String cityName;
     private String country;
+
+
 }

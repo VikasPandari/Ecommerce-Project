@@ -19,14 +19,21 @@ import java.util.List;
 @Table(name="Customer")
 public class CustomerEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int customerId;
     private String firstName;
     private String lastName;
     private String email;
     private String mobileNumber;
     private String password;
+
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "fk_locationId")
+    @JoinColumn(name="customerId")
     private List<AddressEntity> address;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy =  "customerDetails")
+    private List<ProductOrdersEntity> orders;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "customerEntity")
+    private List<ProductCartEntity> cartDetails;
 }

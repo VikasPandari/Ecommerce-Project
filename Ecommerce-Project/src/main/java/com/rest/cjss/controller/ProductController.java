@@ -37,25 +37,25 @@ public class ProductController {
     }
     @GetMapping("/getProduct/{productCode}")
     public ProductEntity getOneProduct(@PathVariable Integer productCode){
-       ProductEntity product= productService.getOneProduct(productCode);
+        ProductEntity product= productService.getOneProduct(productCode);
         return product;
     }
-    @GetMapping("/{productCode}/getProduct/{size}/{customerId}/{quantity}")
-    public ProductCartEntity Product(@PathVariable Integer productCode,
-                                     @PathVariable String size, @PathVariable Integer customerId,
-                                     @PathVariable Integer quantity){
-        ProductCartEntity productCarts= productService.addProductToCart(productCode, size,customerId, quantity);
-        return productCarts;
-    }
-
-    @GetMapping("/{productCode}/getOneProduct/{customerId}/{size}/{locationId}/{quantity}")
-    public ProductOrdersEntity getOneProductToPlaceOrder(@PathVariable Integer productCode,
-                                                         @PathVariable Integer customerId,
-                                                         @PathVariable String size, @PathVariable Integer locationId,
-                                                         @PathVariable Integer quantity){
-        ProductOrdersEntity products= productService.placeOrder(productCode, customerId, size, locationId, quantity);
-        return products;
-    }
+//    @GetMapping("/{productCode}/getProduct/{size}/{customerId}/{quantity}")
+//    public ProductCartEntity Product(@PathVariable Integer productCode,
+//                                     @PathVariable String size, @PathVariable Integer customerId,
+//                                     @PathVariable Integer quantity){
+//        ProductCartEntity productCarts= productService.addProductToCart(productCode, size,customerId, quantity);
+//        return productCarts;
+//    }
+//
+//    @GetMapping("/{productCode}/getOneProduct/{customerId}/{size}/{locationId}/{quantity}")
+//    public ProductOrdersEntity getOneProductToPlaceOrder(@PathVariable Integer productCode,
+//                                                         @PathVariable Integer customerId,
+//                                                         @PathVariable String size, @PathVariable Integer locationId,
+//                                                         @PathVariable Integer quantity){
+//        ProductOrdersEntity products= productService.placeOrder(productCode, customerId, size, locationId, quantity);
+//        return products;
+//    }
 
 //    @GetMapping("/getAllProductsByName/{pname}")
 //    public List<ProductEntity> getAllProducts(@PathVariable String pname){

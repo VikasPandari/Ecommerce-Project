@@ -1,12 +1,10 @@
 package com.rest.cjss.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Pattern;
 @Data
 @Entity
@@ -20,13 +18,11 @@ public class ProductOrdersEntity {
     private String size;
     private double price;
     private String currency;
+    private int quantity;
     private double totalAmount;
-    private int customerId;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String mobileNumber;
     private int locationId;
-    private String cityName;
-    private String country;
+    @JsonIgnore
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "customerId")
+    private CustomerEntity customerDetails;
 }
