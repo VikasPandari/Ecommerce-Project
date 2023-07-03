@@ -1,18 +1,20 @@
 package com.rest.cjss.service;
 
 import com.rest.cjss.entity.*;
-import com.rest.cjss.repository.CustomerRepository;
-import com.rest.cjss.repository.OrdersRepository;
-import com.rest.cjss.repository.ProductCartRepository;
-import com.rest.cjss.repository.ProductRepository;
+import com.rest.cjss.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
+    @Autowired
+    private ProductSkusRepository productSkusRepository;
     @Autowired
     private CustomerRepository customerRepository;
     @Autowired
@@ -21,7 +23,8 @@ public class ProductService {
     private ProductRepository productRepository;
     @Autowired
     private OrdersRepository ordersRepository;
-    public ProductEntity saveProductDetails(ProductEntity productEntity) {
+    public ProductEntity saveProduct(ProductEntity productEntity) {
+        productEntity.setProductSkus(new ArrayList<>());
         return productRepository.save(productEntity);
     }
     public List<ProductEntity> getAllProducts() {
@@ -30,6 +33,24 @@ public class ProductService {
     public ProductEntity getOneProduct(Integer productCode){
         ProductEntity productEntity = productRepository.findById(productCode).get();
         return productEntity;
+    }
+
+    public ProductEntity saveProductSkus(ProductSkusEntity productSkusEntity, Integer productCode) {
+        productSkusEntity.setProductPrices(new ProductPriceEntity());
+        ProductEntity product= productRepository.findById(productCode).get();
+        productSkusEntity.setProducts(product);
+        product.getProductSkus().add(productSkusEntity);
+        productRepository.save(product);
+       return product;
+
+
+    }
+    public ProductSkusEntity setPriceToSkus(ProductPriceEntity productPrice, String skuCode){
+        ProductSkusEntity productSkus=productSkusRepository.findBySkuCode(skuCode).get();
+        productPrice.setProductSkusEntity(productSkus);
+        productSkus.setProductPrices(productPrice);
+        productSkusRepository.save(productSkus);
+        return productSkus;
     }
 //    public ProductCartEntity addProductToCart(Integer productCode, String size, Integer customerId, Integer quantity) {
 //        Optional<ProductEntity> productEntity = productRepository.findById(productCode);

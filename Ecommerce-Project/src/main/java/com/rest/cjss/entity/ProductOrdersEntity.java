@@ -23,6 +23,6 @@ public class ProductOrdersEntity {
     private int locationId;
     @JsonIgnore
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "customerId")
+    @JoinColumn(name = "email")
     private CustomerEntity customerDetails;
 }

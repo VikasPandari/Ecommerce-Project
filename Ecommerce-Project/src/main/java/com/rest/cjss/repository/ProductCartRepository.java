@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface ProductCartRepository extends JpaRepository<ProductCartEntity, Integer> {
-
+//    Optional<ProductCartEntity> findByEmailAndSize(String email, String size);
 
 //    public Optional<List<ProductCartEntity>> findProductBySize(String size);
 //    SELECT * FROM ((product

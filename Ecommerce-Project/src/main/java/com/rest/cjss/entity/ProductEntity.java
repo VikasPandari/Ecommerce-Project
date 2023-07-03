@@ -18,8 +18,7 @@ public class ProductEntity {
     private int productCode;
     private String productName;
     private String description;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name="fk_productCode")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "products")
     private List<ProductSkusEntity> productSkus;
     public int getProductCode() {
         return productCode;

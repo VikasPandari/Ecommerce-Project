@@ -20,6 +20,9 @@ public class AddressEntity {
     private int locationId;
     private String cityName;
     private String country;
-
+    @JsonIgnore
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="email")
+    private CustomerEntity customerDetails;
 
 }

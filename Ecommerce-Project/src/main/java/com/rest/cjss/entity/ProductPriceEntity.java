@@ -1,10 +1,9 @@
 package com.rest.cjss.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 
 @Data
 @NoArgsConstructor
@@ -20,6 +19,10 @@ public class ProductPriceEntity {
     private double price;
     private String currency;
     private int quantityAvailable;
+    @JsonIgnore
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "skuCode", referencedColumnName = "skuCode")
+    private ProductSkusEntity productSkusEntity;
     public double getPrice() {
         return price;
     }

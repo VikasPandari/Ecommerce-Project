@@ -1,5 +1,6 @@
 package com.rest.cjss.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -16,9 +17,12 @@ public class ProductSkusEntity {
     @Id
     private String skuCode;
     private String size;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name= "fk_skuCode")
-    private List<ProductPriceEntity> productPrices;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "productSkusEntity", fetch = FetchType.LAZY)
+    private ProductPriceEntity productPrices;
+    @JsonIgnore
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="productCode")
+    private ProductEntity products;
 
     public String getSkuCode() {
         return skuCode;
@@ -36,11 +40,11 @@ public class ProductSkusEntity {
         this.size = size;
     }
 
-    public List<ProductPriceEntity> getProductPrices() {
+    public ProductPriceEntity getProductPrices() {
         return productPrices;
     }
 
-    public void setProductPrices(List<ProductPriceEntity> productPrices) {
+    public void setProductPrices(ProductPriceEntity productPrices) {
         this.productPrices = productPrices;
     }
     //    @OneToOne(cascade = CascadeType.ALL, mappedBy = "productSkus")

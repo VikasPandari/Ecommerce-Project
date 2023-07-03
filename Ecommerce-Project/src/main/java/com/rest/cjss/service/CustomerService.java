@@ -23,24 +23,42 @@ public class CustomerService {
     private CustomerRepository customerRepository;
     @Autowired
     private ProductRepository productRepository;
-    public CustomerEntity saveCustomers(CustomerEntity customerEntity) {
-        customerEntity.setOrders(new ArrayList<>());
-        customerEntity.setCartDetails(new ArrayList<>());
-        customerRepository.save(customerEntity);
-        return customerEntity;
+    public CustomerEntity saveCustomers (CustomerEntity customerEntity) throws NoCustomerFoundException{
+        Optional<CustomerEntity> customerEntity1= customerRepository.findByEmail(customerEntity.getEmail());
+        if(customerEntity1.isPresent()){
+            throw new NoCustomerFoundException("already this is exist");
+        }
+        else {
+            customerEntity.setAddress(new ArrayList<>());
+            customerEntity.setOrders(new ArrayList<>());
+            customerEntity.setCartDetails(new ArrayList<>());
+            customerRepository.save(customerEntity);
+            return customerEntity;
+        }
     }
+
+    public CustomerEntity saveCustomerAddress(AddressEntity address, String email){
+       Optional<CustomerEntity> customer= customerRepository.findByEmail(email);
+       CustomerEntity customerEntity= customer.get();
+       address.setCustomerDetails(customerEntity);
+       customerEntity.getAddress().add(address);
+       customerRepository.save(customerEntity);
+       return customerEntity;
+    }
+
     public List<CustomerEntity> getAllCustomerWithOrders(){
         return customerRepository.findAll();
     }
+
     public CustomerEntity saveProductToCart(ProductCartModel productCartModel) throws NoCustomerFoundException{
         Optional<ProductEntity> productEntity = productRepository.findById(productCartModel.getProductCode());
-        Optional<CustomerEntity> customerEntity1 = customerRepository.findById(productCartModel.getCustomerId());
+        Optional<CustomerEntity> customerEntity1 = customerRepository.findByEmail(productCartModel.getEmail());
         if (customerEntity1.get().getEmail().equalsIgnoreCase(productCartModel.getEmail()) &&
                 customerEntity1.get().getPassword().equalsIgnoreCase(productCartModel.getPassword())) {
             ProductCartEntity productCart = new ProductCartEntity();
             productEntity.stream().forEach(prod -> {
                 prod.getProductSkus().stream().forEach(p -> {
-                    int qty = p.getProductPrices().get(0).getQuantityAvailable();
+                    int qty = p.getProductPrices().getQuantityAvailable();
                     if (p.getSize().equalsIgnoreCase(productCartModel.getSize()) && qty >= productCartModel.getQuantity()) {
                         if(customerEntity1.get().getCartDetails().isEmpty()||customerEntity1.get().getCartDetails().get(0).getProductCode()==productCartModel.getProductCode()&&
                                 (!customerEntity1.get().getCartDetails().get(0).getSize().equalsIgnoreCase(productCartModel.getSize()))){
@@ -48,8 +66,8 @@ public class CustomerService {
                             productCart.setProductName(prod.getProductName());
                             productCart.setSkuCode(p.getSkuCode());
                             productCart.setSize(p.getSize());
-                            productCart.setPrice(p.getProductPrices().get(0).getPrice());
-                            productCart.setCurrency(p.getProductPrices().get(0).getCurrency());
+                            productCart.setPrice(p.getProductPrices().getPrice());
+                            productCart.setCurrency(p.getProductPrices().getCurrency());
                             productCart.setQuantity(productCartModel.getQuantity());
                             productCart.setTotalAmount(productCartModel.getQuantity() * productCart.getPrice());
                             productCart.setCustomerEntity(customerEntity1.get());
@@ -71,28 +89,34 @@ public class CustomerService {
     }
     public CustomerEntity placeOrder(ProductOrderModel productOrderModel) throws NoCustomerFoundException{
         Optional<ProductEntity> productEntity = productRepository.findById(productOrderModel.getProductCode());
-        CustomerEntity customerDetails = customerRepository.findById(productOrderModel.getCustomerId()).get();
+        CustomerEntity customerDetails = customerRepository.findByEmail(productOrderModel.getEmail()).get();
+
         if (customerDetails.getEmail().equalsIgnoreCase(productOrderModel.getEmail()) &&
                 customerDetails.getPassword().equalsIgnoreCase(productOrderModel.getPassword())) {
+
             ProductOrdersEntity ordersEntity = new ProductOrdersEntity();
+
             if(customerDetails.getCartDetails().isEmpty()||
                     (!customerDetails.getCartDetails().get(0).getSize().equalsIgnoreCase(productOrderModel.getSize()))&&
                             customerDetails.getCartDetails().get(0).getProductCode()==productOrderModel.getProductCode()||
                     customerDetails.getCartDetails().get(0).getProductCode()!=productOrderModel.getProductCode()) {
+
                 productEntity.stream().forEach(prod -> {
                     prod.getProductSkus().stream().forEach(p -> {
                         if (p.getSize().equalsIgnoreCase(productOrderModel.getSize()) &&
-                                p.getProductPrices().get(0).getQuantityAvailable()>=productOrderModel.getQuantity()) {
+                                p.getProductPrices().getQuantityAvailable()>=productOrderModel.getQuantity()) {
                             ordersEntity.setProductCode(prod.getProductCode());
                             ordersEntity.setProductName(prod.getProductName());
                             ordersEntity.setSkuCode(p.getSkuCode());
                             ordersEntity.setSize(p.getSize());
-                            ordersEntity.setPrice(p.getProductPrices().get(0).getPrice());
-                            ordersEntity.setCurrency(p.getProductPrices().get(0).getCurrency());
+                            ordersEntity.setPrice(p.getProductPrices().getPrice());
+                            ordersEntity.setCurrency(p.getProductPrices().getCurrency());
                             ordersEntity.setQuantity(productOrderModel.getQuantity());
                             ordersEntity.setTotalAmount(productOrderModel.getQuantity() * ordersEntity.getPrice());
                             ordersEntity.setLocationId(productOrderModel.getLocationId());
-                        }});});
+                        }
+                    });
+                });
             }
             else{
                 ProductCartEntity cartEntity= customerDetails.getCartDetails().get(0);
@@ -105,26 +129,30 @@ public class CustomerService {
                 ordersEntity.setCurrency(cartEntity.getCurrency());
                 ordersEntity.setQuantity(productOrderModel.getQuantity());
                 ordersEntity.setTotalAmount(productOrderModel.getQuantity()*ordersEntity.getPrice());
+                ordersEntity.setCustomerDetails(customerDetails);
+                customerDetails.getOrders().add(ordersEntity);
                 if(cartEntity.getQuantity()>1) {
                     cartEntity.setQuantity(cartEntity.getQuantity()-productOrderModel.getQuantity());
                 }
-                else{List<ProductCartEntity> customer=customerDetails.getCartDetails().stream().collect(Collectors.toList());
-                    customer.clear();
-                    customerDetails.setCartDetails(customer);
+                else{
+
+                 customerDetails.getCartDetails().removeAll(customerDetails.getCartDetails());
+                    productCartRepository.deleteById(cartEntity.getSno());
+                    customerDetails.setCartDetails(customerDetails.getCartDetails());
                 }
             }
             ProductEntity productEntity1 = productRepository.findById(productOrderModel.getProductCode()).get();
             productEntity1.getProductSkus().stream().forEach(product -> {
                 if (product.getSize().equalsIgnoreCase(productOrderModel.getSize())) {
-                    product.getProductPrices().get(0).setQuantityAvailable(product.getProductPrices().get(0).getQuantityAvailable()-productOrderModel.getQuantity());
+                    product.getProductPrices().setQuantityAvailable(product.getProductPrices().getQuantityAvailable()-productOrderModel.getQuantity());
                 }
             });
             ordersEntity.setCustomerDetails(customerDetails);
             customerDetails.getOrders().add(ordersEntity);
-            ordersRepository.save(ordersEntity);
+            customerRepository.save(customerDetails);
             return customerDetails;
         }else {
-            throw  new NoCustomerFoundException("your are entered invalid username and password or please register to place your order");
+            throw  new NoCustomerFoundException("your are enter invalid username and password or please register to place your order");
         }
     }
     public List<CustomerModel> getAllCustomers() {

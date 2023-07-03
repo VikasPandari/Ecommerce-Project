@@ -1,9 +1,8 @@
 package com.rest.cjss.controller;
 
-import com.rest.cjss.entity.ProductCartEntity;
 import com.rest.cjss.entity.ProductEntity;
-import com.rest.cjss.entity.ProductModel;
-import com.rest.cjss.entity.ProductOrdersEntity;
+import com.rest.cjss.entity.ProductPriceEntity;
+import com.rest.cjss.entity.ProductSkusEntity;
 import com.rest.cjss.repository.ProductCartRepository;
 import com.rest.cjss.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @RequestMapping("/products")
 @RestController
@@ -20,15 +18,24 @@ public class ProductController {
     private ProductService productService;
     @Autowired
     private  ProductCartRepository cartRepository;
-    @PostMapping("/addProductAndSkusDetails")
+    @PostMapping("/addProduct")
     public String addProductDetails(@Valid @RequestBody ProductEntity productEntity){
-        ProductEntity product= productService.saveProductDetails(productEntity);
+        ProductEntity product= productService.saveProduct(productEntity);
         String message = null;
         if(product!=null){
             message = "product is inserted";
         }
         else {message="product not inserted";}
         return message;
+    }
+    @PutMapping("/addProductSkus/{productCode}")
+    public ProductEntity addProductSkusDetails(@RequestBody ProductSkusEntity productSkusEntity, @PathVariable Integer productCode){
+        return  productService.saveProductSkus(productSkusEntity, productCode);
+
+    }
+    @PutMapping("/addPriceToProducts/{skuCode}")
+    public ProductSkusEntity addPricesToProducts(@RequestBody ProductPriceEntity productPrice, @PathVariable String skuCode){
+        return productService.setPriceToSkus(productPrice,skuCode);
     }
     @GetMapping("/getAllProducts")
     public List<ProductEntity> getAll(){

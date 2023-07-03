@@ -7,7 +7,6 @@ import javax.validation.constraints.Pattern;
 public class ProductOrderModel {
     private int productCode;
     private String size;
-    private int customerId;
     private String email;
     private String password;
     private int locationId;
